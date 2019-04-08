@@ -1,4 +1,13 @@
-# realworld-vuejs
+# RealWorld demo app
+
+> A RealWorld demo app by Vue.js
+
+## 技术栈
+
+- Vue.js
+- Vue Router
+- Vue CLI
+- Vuex
 
 ## 功能
 
