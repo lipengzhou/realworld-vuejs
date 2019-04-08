@@ -9,20 +9,37 @@
           </p>
 
           <ul class="error-messages">
-            <li>That email is already taken</li>
+            <template v-for="(value, key) in errors">
+              <li v-for="(err, index) in value" :key="index">{{ `${key} ${err}` }}</li>
+            </template>
           </ul>
 
-          <form>
+          <form @submit.prevent="onRegister(user)">
             <fieldset class="form-group">
-              <input class="form-control form-control-lg" type="text" placeholder="Your Name">
+              <input
+                class="form-control form-control-lg"
+                type="text"
+                placeholder="Your Name"
+                :disabled="disabled"
+                v-model="user.username">
             </fieldset>
             <fieldset class="form-group">
-              <input class="form-control form-control-lg" type="text" placeholder="Email">
+              <input
+                class="form-control form-control-lg"
+                type="text"
+                placeholder="Email"
+                :disabled="disabled"
+                v-model="user.email">
             </fieldset>
             <fieldset class="form-group">
-              <input class="form-control form-control-lg" type="password" placeholder="Password">
+              <input
+                class="form-control form-control-lg"
+                type="password"
+                placeholder="Password"
+                :disabled="disabled"
+                v-model="user.password">
             </fieldset>
-            <button class="btn btn-lg btn-primary pull-xs-right">
+            <button class="btn btn-lg btn-primary pull-xs-right" :disabled="disabled">
               Sign up
             </button>
           </form>
@@ -33,10 +50,32 @@
 </template>
 
 <script>
+import { register } from '@/api/user'
+
 export default {
   name: 'AppRegister',
   data () {
-    return {}
+    return {
+      user: {
+        username: '',
+        email: '',
+        password: ''
+      },
+      disabled: false,
+      errors: null
+    }
+  },
+  methods: {
+    async onRegister ({ username, email, password }) {
+      this.disabled = true
+      try {
+        await register({ username, email, password })
+        this.$router.push({ name: 'home' })
+      } catch ({ response }) {
+        this.errors = response.data.errors
+      }
+      this.disabled = false
+    }
   }
 }
 </script>
