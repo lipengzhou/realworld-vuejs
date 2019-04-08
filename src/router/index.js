@@ -38,7 +38,7 @@ const router = new Router({
           name: 'profile-favorites',
           component: Profile
         },
-        { path: '/settings', name: 'settings', component: Settings  },
+        { path: '/settings', name: 'settings', component: Settings },
         { path: '/editor', name: 'editor', component: Editor },
         { path: '/editor/:slug', name: 'editor-edit', component: Editor },
         { path: '/article/:slug', name: 'article', component: Article }
