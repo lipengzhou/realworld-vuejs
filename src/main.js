@@ -4,6 +4,9 @@ import router from './router'
 import store from './store'
 import './registerServiceWorker'
 
+import 'ionicons/css/ionicons.min.css'
+import './styles/main.css'
+
 Vue.config.productionTip = false
 
 new Vue({
