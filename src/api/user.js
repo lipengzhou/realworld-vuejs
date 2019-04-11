@@ -35,3 +35,61 @@ export const register = ({ username, email, password }) => request({
     }
   }
 })
+
+/**
+ * 根据 token 获取用户信息
+ * @return {Object} 响应对象
+ */
+export const getUser = () => request({
+  method: 'GET',
+  url: '/user',
+  requireAuth: true
+})
+
+/**
+ * 更新用户
+ */
+export const updateUser = ({
+  email,
+  username,
+  password,
+  image,
+  bio
+}) => request({
+  method: 'PUT',
+  url: '/user',
+  requireAuth: true,
+  data: {
+    email,
+    username,
+    password,
+    image,
+    bio
+  }
+})
+
+/**
+ * 获取用户基本信息
+ */
+export const getUserProfile = username => request({
+  method: 'GET',
+  url: `/profiles/${username}`
+})
+
+/**
+ * 关注用户
+ */
+export const followUser = username => request({
+  method: 'POST',
+  url: `/profiles/${username}/follow`,
+  requireAuth: true
+})
+
+/**
+ * 取消关注用户
+ */
+export const unFollowUser = username => request({
+  method: 'DELETE',
+  url: `/profiles/${username}/follow`,
+  requireAuth: true
+})

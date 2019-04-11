@@ -31,17 +31,19 @@ const router = new Router({
         {
           path: '/profile/:username',
           name: 'profile',
-          component: Profile
+          component: Profile,
+          props: true
         },
         {
           path: '/profile/:username/favorites',
           name: 'profile-favorites',
-          component: Profile
+          component: Profile,
+          props: true
         },
-        { path: '/settings', name: 'settings', component: Settings },
-        { path: '/editor', name: 'editor', component: Editor },
-        { path: '/editor/:slug', name: 'editor-edit', component: Editor },
-        { path: '/article/:slug', name: 'article', component: Article }
+        { path: '/settings', name: 'settings', component: Settings, meta: { requiresAuth: true } },
+        { path: '/editor', name: 'editor', component: Editor, meta: { requiresAuth: true } },
+        { path: '/editor/:slug', name: 'editor-edit', component: Editor, props: true, meta: { requiresAuth: true } },
+        { path: '/article/:slug', name: 'article-detail', component: Article, props: true }
       ]
     }
   ]

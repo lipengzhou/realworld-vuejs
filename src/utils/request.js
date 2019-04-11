@@ -1,4 +1,5 @@
 import axios from 'axios'
+import { getToken } from '@/utils/auth'
 
 const request = axios.create({
   baseURL: 'https://conduit.productionready.io/api',
@@ -10,6 +11,10 @@ const request = axios.create({
 // Add a request interceptor
 request.interceptors.request.use(function (config) {
   // Do something before request is sent
+  if (config.requireAuth) {
+    // https://github.com/gothinkster/realworld/tree/master/api#authentication-header
+    config.headers.Authorization = `Token ${getToken()}`
+  }
   return config
 }, function (error) {
   // Do something with request error

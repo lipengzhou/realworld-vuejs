@@ -51,6 +51,7 @@
 
 <script>
 import { register } from '@/api/user'
+import { SET_USER } from '@/store/mutation-types'
 
 export default {
   name: 'AppRegister',
@@ -69,7 +70,8 @@ export default {
     async onRegister ({ username, email, password }) {
       this.disabled = true
       try {
-        await register({ username, email, password })
+        const { data } = await register({ username, email, password })
+        this.$store.commit(SET_USER, data.user)
         this.$router.push({ name: 'home' })
       } catch ({ response }) {
         this.errors = response.data.errors

@@ -28,6 +28,9 @@
                 </button>
             </fieldset>
           </form>
+          <!-- Line break for logout button -->
+          <hr>
+          <button class="btn btn-outline-danger" @click="onLogout">Or click here to logout.</button>
         </div>
 
       </div>
@@ -36,10 +39,20 @@
 </template>
 
 <script>
+import { LOG_OUT } from '@/store/mutation-types'
+
 export default {
   name: 'UserSettings',
   data () {
     return {}
+  },
+  methods: {
+    onLogout () {
+      this.$store.commit(LOG_OUT)
+      this.$router.push({
+        name: 'home'
+      })
+    }
   }
 }
 </script>

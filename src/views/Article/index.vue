@@ -4,26 +4,9 @@
     <div class="banner">
       <div class="container">
 
-        <h1>How to build webapps that scale</h1>
+        <h1>{{ article.title }}</h1>
 
-        <div class="article-meta">
-          <a href=""><img src="http://i.imgur.com/Qr71crq.jpg" /></a>
-          <div class="info">
-            <a href="" class="author">Eric Simons</a>
-            <span class="date">January 20th</span>
-          </div>
-          <button class="btn btn-sm btn-outline-secondary">
-            <i class="ion-plus-round"></i>
-            &nbsp;
-            Follow Eric Simons <span class="counter">(10)</span>
-          </button>
-          &nbsp;&nbsp;
-          <button class="btn btn-sm btn-outline-primary">
-            <i class="ion-heart"></i>
-            &nbsp;
-            Favorite Post <span class="counter">(29)</span>
-          </button>
-        </div>
+        <ArticleMeta :article="article" @following="onFollowing"/>
 
       </div>
     </div>
@@ -31,86 +14,52 @@
     <div class="container page">
 
       <div class="row article-content">
-        <div class="col-md-12">
-          <p>
-          Web development technologies have evolved at an incredible clip over the past few years.
-          </p>
-          <h2 id="introducing-ionic">Introducing RealWorld.</h2>
-          <p>It's a great solution for learning how other frameworks work.</p>
-        </div>
+        <div class="col-md-12" v-html="article.body"></div>
       </div>
 
       <hr />
 
       <div class="article-actions">
-        <div class="article-meta">
-          <a href="profile.html"><img src="http://i.imgur.com/Qr71crq.jpg" /></a>
-          <div class="info">
-            <a href="" class="author">Eric Simons</a>
-            <span class="date">January 20th</span>
-          </div>
-
-          <button class="btn btn-sm btn-outline-secondary">
-            <i class="ion-plus-round"></i>
-            &nbsp;
-            Follow Eric Simons <span class="counter">(10)</span>
-          </button>
-          &nbsp;
-          <button class="btn btn-sm btn-outline-primary">
-            <i class="ion-heart"></i>
-            &nbsp;
-            Favorite Post <span class="counter">(29)</span>
-          </button>
-        </div>
+        <ArticleMeta :article="article" @following="onFollowing"/>
       </div>
 
       <div class="row">
 
         <div class="col-xs-12 col-md-8 offset-md-2">
-
-          <form class="card comment-form">
+          <form class="card comment-form" v-if="$store.state.user">
             <div class="card-block">
-              <textarea class="form-control" placeholder="Write a comment..." rows="3"></textarea>
+              <textarea
+                class="form-control"
+                placeholder="Write a comment..."
+                rows="3"
+                v-model="commentBody"></textarea>
             </div>
             <div class="card-footer">
-              <img src="http://i.imgur.com/Qr71crq.jpg" class="comment-author-img" />
-              <button class="btn btn-sm btn-primary">
+              <img :src="user.image || '/img/default-avatar.jpg'" class="comment-author-img" />
+              <button class="btn btn-sm btn-primary" @click.prevent="onSubmitComment(slug, commentBody)">
                Post Comment
               </button>
             </div>
           </form>
+          <p style="display: inherit;" v-else>
+            <a ui-sref="app.login" href="#/login">Sign in</a> or <a ui-sref="app.register" href="#/register">sign up</a> to add comments on this article.
+          </p>
 
-          <div class="card">
+          <!-- 评论列表 -->
+          <div class="card" v-for="item in comments">
             <div class="card-block">
-              <p class="card-text">With supporting text below as a natural lead-in to additional content.</p>
+              <p class="card-text">{{ item.body }}</p>
             </div>
             <div class="card-footer">
               <a href="" class="comment-author">
-                <img src="http://i.imgur.com/Qr71crq.jpg" class="comment-author-img" />
+                <img :src="item.author.image" class="comment-author-img" />
               </a>
               &nbsp;
-              <a href="" class="comment-author">Jacob Schmidt</a>
-              <span class="date-posted">Dec 29th</span>
+              <a href="" class="comment-author">{{ item.author.username }}</a>
+              <span class="date-posted">{{ item.createdAt | formatDate }}</span>
             </div>
           </div>
-
-          <div class="card">
-            <div class="card-block">
-              <p class="card-text">With supporting text below as a natural lead-in to additional content.</p>
-            </div>
-            <div class="card-footer">
-              <a href="" class="comment-author">
-                <img src="http://i.imgur.com/Qr71crq.jpg" class="comment-author-img" />
-              </a>
-              &nbsp;
-              <a href="" class="comment-author">Jacob Schmidt</a>
-              <span class="date-posted">Dec 29th</span>
-              <span class="mod-options">
-                <i class="ion-edit"></i>
-                <i class="ion-trash-a"></i>
-              </span>
-            </div>
-          </div>
+          <!-- 评论列表 -->
 
         </div>
 
@@ -122,10 +71,76 @@
 </template>
 
 <script>
+import { getArticle } from '@/api/article'
+import { getComments, createComment } from '@/api/comment'
+import { followUser, unFollowUser } from '@/api/user'
+import marked from 'marked'
+import { mapState } from 'vuex'
+import ArticleMeta from './article-meta'
+
 export default {
   name: 'ArticleDetail',
+
+  components: {
+    ArticleMeta
+  },
+
+  props: ['slug'],
+
   data () {
-    return {}
+    return {
+      article: {
+        author: {}
+      },
+      comments: [],
+      commentBody: ''
+    }
+  },
+
+  computed: {
+    ...mapState(['user'])
+  },
+
+  created () {
+    this.loadArticle(this.slug)
+    this.loadComments(this.slug)
+  },
+
+  methods: {
+    async loadArticle (slug) {
+      try {
+        const { data } = await getArticle(slug)
+        data.article.body = marked(data.article.body)
+        this.article = data.article
+      } catch (err) {
+        console.log(err)
+      }
+    },
+
+    async loadComments (slug) {
+      try {
+        const { data } = await getComments(slug)
+        this.comments = data.comments
+      } catch (err) {
+        console.log(err)
+      }
+    },
+
+    async onSubmitComment (slug, body) {
+      const { data } = await createComment(slug, body)
+      this.commentBody = ''
+      this.loadComments(slug)
+    },
+
+    async onFollowing (username, following) {
+      let res = null
+      if (following) { // 关注
+        res = await followUser(username)
+      } else { // 取关
+        res = await unFollowUser(username)
+      }
+      this.article.author = res.data.profile
+    }
   }
 }
 </script>

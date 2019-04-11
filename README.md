@@ -38,6 +38,14 @@
 
 <https://github.com/gothinkster/realworld/tree/master/api>
 
+### 开发步骤
+
+- 项目初始化
+- 调整项目目录结构
+- 页面组件 && 路由导航
+- 封装 API 请求模块
+- 用户注册
+
 ## Project setup
 ```
 yarn install
